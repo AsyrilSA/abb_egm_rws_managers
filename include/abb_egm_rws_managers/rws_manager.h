@@ -54,7 +54,7 @@ namespace robot
 class RWSManager
 {
 public:
-  using ServiceFunctor = std::function<void(rws::v2_0::RWSStateMachineInterface& interface)>;
+  using ServiceFunctor = std::function<void(rws::RWSStateMachineInterface& interface)>;
 
   /**
    * \brief Creates a manager for handling communication with the robot controller's RWS server.
@@ -155,12 +155,12 @@ private:
   /**
    * \brief RWS communication interface, intended for lower priority requests.
    */
-  rws::v2_0::RWSStateMachineInterface interface_;
+  rws::RWSStateMachineInterface interface_;
 
   /**
    * \brief RWS communication interface, intended for higher priority requests.
    */
-  rws::v2_0::RWSStateMachineInterface priority_interface_;
+  rws::RWSStateMachineInterface priority_interface_;
 
   /**
    * \brief Key data about the robot controller's active system (in raw, unstructured, format).

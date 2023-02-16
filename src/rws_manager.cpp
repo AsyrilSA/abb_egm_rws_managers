@@ -399,7 +399,7 @@ void RWSManager::collectAndUpdateRuntimeData(SystemStateData& system_state_data,
         }
         else
         {
-          state_machine.egm_action = rws::v2_0::RWSStateMachineInterface::EGMActions::EGM_ACTION_UNKNOWN;
+          state_machine.egm_action = rws::RWSStateMachineInterface::EGMActions::EGM_ACTION_UNKNOWN;
         }
         system_state_data.state_machines.push_back(state_machine);
       }
