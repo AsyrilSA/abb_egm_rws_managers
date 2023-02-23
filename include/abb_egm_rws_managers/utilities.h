@@ -148,7 +148,6 @@ struct InitialJointValue
  *
  * \throw std::runtime_error if the initialization failed (e.g. number of axes are not equal to number of joints).
  */
-void initializeMotionData(MotionData& motion_data, const RobotControllerDescription& description);
 
 void initializeMotionData(
   MotionData& motion_data,
