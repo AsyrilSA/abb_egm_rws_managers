@@ -151,6 +151,70 @@ void initializeMotionData(
     return motion_unit;
   }};
 
+void initializeMotionData(MotionData& motion_data, const RobotControllerDescription& description)
+{
+  const auto& rw_version{description.header().robot_ware_version()};
+
+  //--------------------------------------------------------
+  // Support lambda
+  //--------------------------------------------------------
+  auto createMotionUnit{[&](const MechanicalUnit& unit)
+  {
+    MotionData::MechanicalUnit motion_unit{};
+
+    motion_unit.name = unit.name();
+    motion_unit.type = unit.type();
+    motion_unit.active = unit.mode() == MechanicalUnit_Mode_ACTIVATED;
+    motion_unit.supported_by_egm = false;
+
+    // Set indicator for if the unit is supported by EGM or not.
+    if(unit.type() == MechanicalUnit_Type_TCP_ROBOT)
+    {
+      // TCP robots:
+      // - Six axes robots are supported by EGM.
+      // - Seven axes robots are supported by EGM since RobotWare 6.09.
+      if(unit.axes_total() == 6)
+      {
+        motion_unit.supported_by_egm = true;
+      }
+      else if(unit.axes_total() == 7)
+      {
+        if(rw_version.major_number() > 6 ||
+          (rw_version.major_number() == 6 && rw_version.minor_number() >= 9))
+        {
+          motion_unit.supported_by_egm = true;
+        }
+      }
+    }
+    else if(unit.type() == MechanicalUnit_Type_ROBOT || unit.type() == MechanicalUnit_Type_SINGLE)
+    {
+      // External axes are supported by EGM since RobotWare 6.07.
+      if(rw_version.major_number() > 6 ||
+         (rw_version.major_number() == 6 && rw_version.minor_number() >= 7))
+      {
+        motion_unit.supported_by_egm = true;
+      }
+    }
+
+    // Add joint information.
+    for(const auto& standardized_joint : unit.standardized_joints())
+    {
+      MotionData::Joint motion_joint{};
+      motion_joint.name = standardized_joint.standardized_name();
+      motion_joint.rotational = standardized_joint.rotating_move();
+      motion_joint.lower_limit = standardized_joint.lower_joint_bound();
+      motion_joint.upper_limit = standardized_joint.upper_joint_bound();
+      motion_joint.state.position = 0.0;
+      motion_joint.state.velocity = 0.0;
+      motion_joint.state.effort = 0.0;
+      motion_joint.command.position = 0.0;
+      motion_joint.command.velocity = 0.0;
+      motion_unit.joints.push_back(motion_joint);
+    }
+
+    return motion_unit;
+  }};
+  
   //--------------------------------------------------------
   // Loop over all known mechanical unit groups
   //--------------------------------------------------------
